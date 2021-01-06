@@ -1,4 +1,6 @@
+#include <iostream>
 #include "DFA.cpp"
+
 int main() {
 
     DFA dfa;
@@ -11,13 +13,13 @@ int main() {
     dfa.addTransition(std::make_pair("qs", 'i'), "qs"); 
     dfa.addTransition(std::make_pair("qs", 'k'), "qs");
     dfa.addFinalState("qs");
-    if(dfa.canBeRecognized("yoni")) {
+    if(dfa.canBeRecognized("vik")) {
 
-        std::cout << "I love viki!" << std::endl;
+        std::cout << "Successfully recognized the word!" << std::endl;
     }
     else {
 
-        std::cout << "Sad :(" << std::endl;
+        std::cout << "The DFA doesn't recognize the word!" << std::endl;
     }
     return 0;
 }
