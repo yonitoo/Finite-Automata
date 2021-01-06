@@ -9,17 +9,13 @@ void DFA::copy(const DFA& other) {
     this->finalStates = other.finalStates;
 }
 
-void DFA::erase() {
-
-}
-
-DFA::DFA() : alphabet (std::unordered_set<char>()), states (std::unordered_set<std::string>()), 
-            delta (std::map<std::pair<std::string, char>, std::string>()), qs(nullptr), 
+DFA::DFA() : alphabet (Alphabet()), states (std::unordered_set<std::string>()), 
+            delta (std::map<std::pair<std::string, char>, std::string>()), qs(""), 
             finalStates(std::unordered_set<std::string>()) {
 
 }
 
-DFA::DFA(const std::unordered_set<char>& alphabet, const std::unordered_set<std::string>& states, 
+DFA::DFA(const Alphabet& alphabet, const std::unordered_set<std::string>& states, 
         const std::map<std::pair<std::string, char>, std::string>& delta, const std::string& qs, 
         const std::unordered_set<std::string>& finalStates) {
     
@@ -40,7 +36,6 @@ DFA& DFA::operator= (const DFA& other) {
 
     if(this != &other) {
 
-        erase();
         copy(other);
     }
 
@@ -53,7 +48,7 @@ DFA::~DFA() {
 
 void DFA::addLetter(const char& letter) {
 
-    this->alphabet.insert(letter);
+    this->alphabet.addLetter(letter);
 }
 
 void DFA::addState(const std::string& state) {
@@ -74,28 +69,29 @@ void DFA::addFinalState(const std::string& final) {
     this->finalStates.insert(final);
 }
 
-bool DFA::removeLetter(const char& letter) {
+void DFA::removeLetter(const char& letter) {
 
-    this->alphabet.erase(letter);
+    this->alphabet.removeLetter(letter);
 }
 
-bool DFA::removeState(const std::string& state) {
+void DFA::removeState(const std::string& state) {
 
     this->states.erase(state);
 }
 
-bool DFA::removeTransition(const std::pair<std::string, char>& sourceLetter, 
+void DFA::removeTransition(const std::pair<std::string, char>& sourceLetter, 
                             const std::string& destination) {
 
+    //if(this->delta.count(sourceLetter))
     this->delta.erase(sourceLetter);
 }
 
-bool DFA::removeFinalState(const std::string& final) {
+void DFA::removeFinalState(const std::string& final) {
 
     this->finalStates.erase(final);
 }
 
-void DFA::setAlphabet(const std::unordered_set<char>& alphabet) {
+void DFA::setAlphabet(const Alphabet& alphabet) {
 
     this->alphabet = alphabet;
 }
@@ -120,7 +116,7 @@ void DFA::setFinalStates(const std::unordered_set<std::string>& finalStates) {
     this->finalStates = finalStates;
 }
 
-std::unordered_set<char> DFA::getAlphabet() const {
+Alphabet DFA::getAlphabet() const {
 
     return this->alphabet;
 }

@@ -5,13 +5,14 @@
 #include <map>
 #include <utility>
 #include <string>
+#include "Alphabet.h"
 
 //Автоматът е наредена петорка (Σ, Q, 𝛿, qstart, F)
 class DFA {
 
     private: 
         //Σ
-        std::unordered_set<char> alphabet;
+        Alphabet alphabet;
         //Q 
         std::unordered_set<std::string> states; 
         //𝛿
@@ -19,7 +20,7 @@ class DFA {
         //Initial state
         std::string qs;
         //F
-        std::unordered_set<std::string> finalStates; //F
+        std::unordered_set<std::string> finalStates;
 
         void copy(const DFA&);
         void erase();
@@ -28,7 +29,7 @@ class DFA {
         //Default constructor
         DFA();
         //Constructor with arguments
-        DFA(const std::unordered_set<char>&, const std::unordered_set<std::string>&, 
+        DFA(const Alphabet&, const std::unordered_set<std::string>&, 
             const std::map<std::pair<std::string, char>, std::string>&, const std::string&, 
             const std::unordered_set<std::string>&);
         //Copy constructor
@@ -50,17 +51,17 @@ class DFA {
 
         //Remove functions
         //Remove letter from the alphabet       
-        bool removeLetter(const char&);
+        void removeLetter(const char&);
         //Remove state from the set of states
-        bool removeState(const std::string&);
+        void removeState(const std::string&);
         //Remove transition from the delta function
-        bool removeTransition(const std::pair<std::string, char>&, const std::string&);
+        void removeTransition(const std::pair<std::string, char>&, const std::string&);
         //Remove final state from the set of final states
-        bool removeFinalState(const std::string&);
+        void removeFinalState(const std::string&);
 
         //Setters
         //Set the letters of the alphabet
-        void setAlphabet(const std::unordered_set<char>&);
+        void setAlphabet(const Alphabet&);
         //Set the set of states
         void setStates(const std::unordered_set<std::string>&); 
         //Set the delta function
@@ -72,7 +73,7 @@ class DFA {
 
         //Getters
         //Get the letters of the alphabet
-        std::unordered_set<char> getAlphabet() const;
+        Alphabet getAlphabet() const;
         //Get the set of states
         std::unordered_set<std::string> getStates() const; 
         //Get the delta function
@@ -84,6 +85,20 @@ class DFA {
 
         //Check if a word can be recognized by the language of the DFA
         bool canBeRecognized(const std::string&);
+        //Prioritize regular expression      
+        DFA& uni(const DFA&);
+        //Intersection of the languages of 2 DFAs
+        DFA& intersection(const DFA&);
+        //Concatenation of the languages of 2 DFAs
+        DFA& concatenation(const DFA&);
+        //Iteration of the language of DFA       
+        DFA& iteration();
+        //Addition of the language of DFA       
+        DFA& addition(const DFA&);
+        //Print the DFA
+        void print() const;
+        //Transform the DFA into RegEx string  
+        std::string transform();
 };
 
 #endif
