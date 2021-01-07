@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-//Клас за азбуката на автомат
+//Aзбуката на автомат
 class Alphabet {
 
     private:
@@ -28,10 +28,10 @@ class Alphabet {
         //Getter
         std::unordered_set<char> getLetters() const;
 
-        //Add character to the alphabet
-        void addLetter(const char&);
+        //Add letter to the alphabet
+        Alphabet& addLetter(const char&);
         //Remove letter from the alphabet       
-        void removeLetter(const char&);
+        Alphabet& removeLetter(const char&);
 };
 
 #endif

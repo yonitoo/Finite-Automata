@@ -42,7 +42,7 @@ std::unordered_set<char> Alphabet::getLetters() const {
     return this->letters;
 }
 
-void Alphabet::addLetter(const char& letter) {
+Alphabet& Alphabet::addLetter(const char& letter) {
 
     //TODO add the invalid symbols to a set and check set.find(letter)
     if(letter != '&' && letter != '(' && letter != ')' && letter != '*' &&
@@ -51,12 +51,16 @@ void Alphabet::addLetter(const char& letter) {
 
         this->letters.insert(letter);
     }
+    //else {exception CannotAddExistingOrInvalidLetter}
+    return *this;
 }
 
-void Alphabet::removeLetter(const char& letter) {
+Alphabet& Alphabet::removeLetter(const char& letter) {
 
     if(this->letters.find(letter) != this->letters.end()) {
         
         this->letters.erase(letter);
     }
+    //else {exception CannotRemoveNonExistingLetter}
+    return *this;
 }
