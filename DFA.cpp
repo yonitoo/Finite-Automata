@@ -1,6 +1,5 @@
 #include "DFA.h"
 
-//template <typename T>
 void DFA::copy(const DFA& other) {
 
     this->alphabet = other.alphabet;
@@ -10,14 +9,20 @@ void DFA::copy(const DFA& other) {
     this->finalStates = other.finalStates;
 }
 
-//template <typename T>
+DFA& DFA::renameStates(DFA& dfa) {
+
+}
+
+PDFA& DFA::dfs(PDFA&, const DFA&, const DFA&) {
+
+}
+
 DFA::DFA() : alphabet (Alphabet()), states (std::unordered_set<std::string>()), 
             delta (std::map<std::pair<std::string, char>, std::string>()), qs(""), 
             finalStates(std::unordered_set<std::string>()) {
 
 }
 
-//template <typename T>
 DFA::DFA(const Alphabet& alphabet, const std::unordered_set<std::string>& states, 
         const std::map<std::pair<std::string, char>, std::string>& delta, const std::string& qs, 
         const std::unordered_set<std::string>& finalStates) {
@@ -30,13 +35,11 @@ DFA::DFA(const Alphabet& alphabet, const std::unordered_set<std::string>& states
 
 }
 
-//template <typename T>
 DFA::DFA(const DFA& other) {
 
     copy(other);
 }
 
-//template <typename T>
 DFA& DFA::operator= (const DFA& other) {
 
     if(this != &other) {
@@ -47,24 +50,20 @@ DFA& DFA::operator= (const DFA& other) {
     return *this;
 }
 
-//template <typename T>
 DFA::~DFA() {
 
 }
 
-//template <typename T>
 Alphabet& DFA::addLetter(const char& letter) {
 
     return this->alphabet.addLetter(letter);
 }
 
-//template <typename T>
 void DFA::addState(const std::string& state) {
 
     this->states.insert(state);
 }
 
-//template <typename T>
 void DFA::addTransition(const std::pair<std::string, char>& sourceLetter, 
                         const std::string& destination) {
 
@@ -73,18 +72,16 @@ void DFA::addTransition(const std::pair<std::string, char>& sourceLetter,
     this->delta[sourceLetter] = destination;
 }
 
-//template <typename T>
 void DFA::addFinalState(const std::string& final) {
 
     this->finalStates.insert(final);
 }
 
-//template <typename T>
 Alphabet& DFA::removeLetter(const char& letter) {
 
     int size = this->alphabet.getLetters().size();
     this->alphabet.removeLetter(letter);
-    //Check if the letter was not in the alphabet
+    //Check if the letter was missing in the alphabet
     if(this->alphabet.getLetters().size() == size) {
 
         return this->alphabet;
@@ -103,87 +100,73 @@ Alphabet& DFA::removeLetter(const char& letter) {
     return this->alphabet;
 }
 
-//template <typename T>
 void DFA::removeState(const std::string& state) {
 
     this->states.erase(state);
 }
 
-//template <typename T>
 void DFA::removeTransition(const std::pair<std::string, char>& sourceLetter, 
                             const std::string& destination) {
 
-    //if(this->delta.count(sourceLetter))
+    //MAYBE TODO use bool return type
     this->delta.erase(sourceLetter);
 }
 
-//template <typename T>
 void DFA::removeFinalState(const std::string& final) {
 
     this->finalStates.erase(final);
 }
 
-//template <typename T>
 void DFA::setAlphabet(const Alphabet& alphabet) {
 
     this->alphabet = alphabet;
 }
 
-//template <typename T>
 void DFA::setStates(const std::unordered_set<std::string>& states) {
 
     this->states = states;
 }
 
-//template <typename T>
 void DFA::setDelta(const std::map<std::pair<std::string, char>, std::string>& delta) {
 
     this->delta = delta;
 }
 
-//template <typename T>
 void DFA::setQs(const std::string& qs) {
 
     this->qs = qs;
 }
 
-//template <typename T>
 void DFA::setFinalStates(const std::unordered_set<std::string>& finalStates) {
 
     this->finalStates = finalStates;
 }
 
-//template <typename T>
 Alphabet DFA::getAlphabet() const {
 
     return this->alphabet;
 }
 
-//template <typename T>
 std::unordered_set<std::string> DFA::getStates() const {
 
     return this->states;
 }
 
-//template <typename T>
 std::map<std::pair<std::string, char>, std::string> DFA::getDelta() const {
 
     return this->delta;
 }
 
-//template <typename T>
 std::string DFA::getQs() const {
 
     return this->qs;
 }
 
-//template <typename T>
 std::unordered_set<std::string> DFA::getFinalStates() const {
 
     return this->finalStates;
 }
 
-//template <typename T>
 bool DFA::canBeRecognized(const std::string& word) {
 
     int length = word.size();
@@ -201,92 +184,244 @@ bool DFA::canBeRecognized(const std::string& word) {
     return this->finalStates.find(currentState) != this->finalStates.end();
 }
 
-//DFA<std::pair<std::string, std::string>& DFA<std::string>::uni(DFA<std::string>& dfa)
-/*DFA& DFA::uni(const DFA& dfa) {
+PDFA& DFA::uni(const DFA& dfa) {
 
-    //<std::pair<std::string, std::string>>
-    DFA result;
-    result.setQs(std::make_pair(this->getQs(), dfa.getQs()));
+    PDFA pdfa;
+    pdfa.setQs(std::make_pair(this->getQs(), dfa.getQs()));
     for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
-        result.addLetter(*it);
+        pdfa.addLetter(*it);
     }
 
     for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
             it != dfa.getAlphabet().getLetters().end(); it++) {
 
-        result.addLetter(*it);
+        pdfa.addLetter(*it);
     }
     //състояния
+    std::pair<std::string, std::string> currentState = pdfa.getInitialState();
+    //TODO dfs to find the transitions and the states
+    pdfa = dfs(pdfa, *this, dfa);
+
+
     //преходи
-    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = result.getStates().begin(); 
-            it != result.getStates().end(); it++) {
-
-        if((this->finalStates.find(it->first) != this->finalStates.end()) ||
-           (dfa.getFinalStates().find(it->second) != dfa.getFinalStates().end())) {
-
-            result.addFinalState(*it);
-        }
-    }
-    return result;
-}
-
-//template <typename T>
-DFA& DFA::intersection(const DFA&) {
-
-    //<std::pair<std::string, std::string>>
-    DFA result;
-    result.setQs(std::make_pair(this->getQs(), dfa.getQs()));
-    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
-            it != this->alphabet.getLetters().end(); it++) {
-
-        result.addLetter(*it);
-    }
-
-    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
-            it != dfa.getAlphabet().getLetters().end(); it++) {
-
-        result.addLetter(*it);
-    }
-    //състояния
-    //преходи
-    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = result.getStates().begin(); 
-            it != result.getStates().end(); it++) {
+    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
+            it != pdfa.getStates().end(); it++) {
 
         if((this->finalStates.find(it->first) != this->finalStates.end()) &&
            (dfa.getFinalStates().find(it->second) != dfa.getFinalStates().end())) {
 
-            result.addFinalState(*it);
+            pdfa.addFinalState(*it);
         }
     }
-    return result;
-}        */
-
-//template <typename T>
-DFA& DFA::concatenation(const DFA&) {
-
-    
-}   
-
-//template <typename T>
-DFA& DFA::iteration() {
-
+    return pdfa;
 }
 
-//template <typename T>
-DFA& DFA::addition(const DFA&)  {
+NFA& DFA::uni_2(DFA& dfa) {
+
+    NFA nfa;
+    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+            it != this->alphabet.getLetters().end(); it++) {
+
+        nfa.addLetter(*it);
+    }
+
+    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+            it != dfa.getAlphabet().getLetters().end(); it++) {
+
+        nfa.addLetter(*it);
+    }
+
+    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+            it != this->states.end(); it++) {
+
+        nfa.addState(*it);
+    }
+    //TODO renameStates function
+    dfa = this->renameStates(dfa);
+
+    for (std::unordered_set<std::string>::iterator it = dfa.getStates().begin(); 
+            it != dfa.getStates().end(); it++) {
+
+        nfa.addState(*it);
+    }
+
+    nfa.addInitialState(this->qs);
+    nfa.addInitialState(dfa.getQs());
     
-    //обратните финални състояния
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = this->delta.begin(); 
+            it != this->delta.end(); ) {
+
+        nfa.addTransition(it->first, it->second);
+    }
+
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = dfa.getDelta().begin(); 
+            it != dfa.getDelta().end(); ) {
+
+        nfa.addTransition(it->first, it->second);
+    }
+
+    for (std::unordered_set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+
+        nfa.addFinalState(*it);
+    }
+
+    for (std::unordered_set<std::string>::iterator it = dfa.getFinalStates().begin(); 
+            it != dfa.getFinalStates().end(); it++) {
+
+        nfa.addFinalState(*it);
+    }
+
+    return nfa;
+}
+
+PDFA& DFA::intersection(const DFA& dfa) {
+
+    PDFA pdfa;
+    pdfa.setQs(std::make_pair(this->getQs(), dfa.getQs()));
+    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+            it != this->alphabet.getLetters().end(); it++) {
+
+        pdfa.addLetter(*it);
+    }
+
+    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+            it != dfa.getAlphabet().getLetters().end(); it++) {
+
+        pdfa.addLetter(*it);
+    }
+
+    std::pair<std::string, std::string> currentState = pdfa.getInitialState();
+    //TODO dfs to find the transitions and the states
+    pdfa = dfs(pdfa, *this, dfa);
+
+    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
+            it != pdfa.getStates().end(); it++) {
+
+        if((this->finalStates.find(it->first) != this->finalStates.end()) &&
+           (dfa.getFinalStates().find(it->second) != dfa.getFinalStates().end())) {
+
+            pdfa.addFinalState(*it);
+        }
+    }
+    return pdfa;
+}        
+
+NFA& DFA::concatenation(DFA& dfa) {
+
+    NFA nfa;
+    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+            it != this->alphabet.getLetters().end(); it++) {
+
+        nfa.addLetter(*it);
+    }
+
+    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+            it != dfa.getAlphabet().getLetters().end(); it++) {
+
+        nfa.addLetter(*it);
+    }
+
+    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+            it != this->states.end(); it++) {
+
+        nfa.addState(*it);
+    }
+    //TODO renameStates function
+    dfa = this->renameStates(dfa);
+
+    for (std::unordered_set<std::string>::iterator it = dfa.getStates().begin(); 
+            it != dfa.getStates().end(); it++) {
+
+        nfa.addState(*it);
+    }
+
+    nfa.addInitialState(this->qs);
+    
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = this->delta.begin(); 
+            it != this->delta.end(); ) {
+        
+        if(dfa.getFinalStates().find(it->first.first) != dfa.getFinalStates().end()) {
+
+            nfa.addTransition(std::make_pair(it->first.first, '@'), dfa.getQs());
+        }
+        nfa.addTransition(it->first, it->second);
+    }
+
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = dfa.getDelta().begin(); 
+            it != dfa.getDelta().end(); ) {
+
+        nfa.addTransition(it->first, it->second);
+    }
+
+    if(dfa.getFinalStates().find(dfa.getQs()) != dfa.getFinalStates().end()) {
+        
+        for (std::unordered_set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+        
+            nfa.addFinalState(*it);
+        }
+    }
+
+    for (std::unordered_set<std::string>::iterator it = dfa.getFinalStates().begin(); 
+            it != dfa.getFinalStates().end(); it++) {
+
+        nfa.addFinalState(*it);
+    }
+
+    return nfa;
 }   
 
-//template <typename T>
+NFA& DFA::iteration() {
+
+    NFA nfa;
+    nfa.setAlphabet(this->alphabet);
+    nfa.addInitialState(this->qs);
+    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+            it != this->states.end(); it++) {
+        
+        nfa.addState(*it);
+        if(this->finalStates.find(*it) != this->finalStates.end()) {
+            //epsilon transition to the initial state
+            nfa.addTransition(std::make_pair(*it, '@'), this->qs);
+            nfa.addFinalState(*it);
+        }
+    }
+
+    nfa.addInitialState(this->qs + "_2");
+    nfa.addFinalState(this->qs + "_2");
+    return nfa;
+}
+
+DFA& DFA::addition()  {
+
+    bool found = false;
+    std::unordered_set<std::string> newFinals;
+    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+            it != this->states.end(); it++) {
+        found = false;
+        for(std::unordered_set<std::string>::iterator itFinal = this->finalStates.begin(); 
+            itFinal != this->finalStates.end(); itFinal++) {
+            if(this->states.find(*itFinal) != this->states.end()) {
+
+                found = true;
+            }
+        }
+
+        if(!found) {
+
+            newFinals.insert(*it);
+        }
+    }
+}   
+
 void DFA::print() const {
-
+    //TODO table output maybe
+    //Alphabet: ...; States: ...; Initial state: ...; Final states: ...; Transitions: st1 + char -> st2
 }
 
-//template <typename T>
 std::string DFA::transform() {
-
-
+    
 }
