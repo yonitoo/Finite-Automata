@@ -56,7 +56,6 @@ void NFA::addState(const std::string& state) {
     this->states.insert(state);
 }
 
-//
 void NFA::addTransition(const std::pair<std::string, char>& sourceLetter, 
                         const std::string& destination) {
 
@@ -183,7 +182,7 @@ std::unordered_set<std::string> NFA::getFinalStates() const {
 
 bool NFA::canBeRecognized(const std::string& word) {
 
-    int length = word.size();
+    /*int length = word.size();
     std::string currentState;
     //TODO for each Qs fix
     for(auto it : this->qs) {
@@ -195,6 +194,7 @@ bool NFA::canBeRecognized(const std::string& word) {
                 return false;
             }
             //currentState така става set
+            //dfs moje bi
             currentState = this->delta[std::make_pair(currentState, word[i])];
         }
     
@@ -202,33 +202,77 @@ bool NFA::canBeRecognized(const std::string& word) {
 
             return true;
         }
-    }
+    }*/
     return false;
-}
+}  
 
-NFA& NFA::addition()  {
+NFA& NFA::uni(NFA& nfa) {
 
-    bool found = false;
-    std::unordered_set<std::string> newFinals;
+    NFA result;
+    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+            it != this->alphabet.getLetters().end(); it++) {
+
+        result.addLetter(*it);
+    }
+
+    for (std::unordered_set<char>::iterator it = nfa.getAlphabet().getLetters().begin(); 
+            it != nfa.getAlphabet().getLetters().end(); it++) {
+
+        result.addLetter(*it);
+    }
+
     for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
-        found = false;
-        for(std::unordered_set<std::string>::iterator itFinal = this->finalStates.begin(); 
-            itFinal != this->finalStates.end(); itFinal++) {
-            if(this->states.find(*itFinal) != this->states.end()) {
 
-                found = true;
-            }
-        }
+        result.addState(*it);
+    }
 
-        if(!found) {
+    for (std::unordered_set<std::string>::iterator it = nfa.getStates().begin(); 
+            it != nfa.getStates().end(); it++) {
 
-            newFinals.insert(*it);
+        result.addState(*it);
+    }
+
+    result.setInitialStates(this->qs);
+    for (std::unordered_set<std::string>::iterator it = nfa.getInitialStates().begin(); 
+            it != nfa.getInitialStates().end(); it++) {
+
+        result.addInitialState(*it);
+    }
+    
+    for (std::map<std::pair<std::string, char>, std::unordered_set<std::string>>::iterator it = this->delta.begin(); 
+            it != this->delta.end(); ) {
+        for (std::unordered_set<std::string>::iterator it2 = it->second.begin(); 
+            it2 != it->second.end(); it++) {
+
+            result.addTransition(it->first, *it2);
         }
     }
-}   
+
+    for (std::map<std::pair<std::string, char>, std::unordered_set<std::string>>::iterator it = nfa.getDelta().begin(); 
+            it != nfa.getDelta().end(); ) {
+        for (std::unordered_set<std::string>::iterator it2 = it->second.begin(); 
+            it2 != it->second.end(); it++) {
+
+            result.addTransition(it->first, *it2);
+        }
+    }
+
+    for (std::unordered_set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+
+        nfa.addFinalState(*it);
+    }
+
+    for (std::unordered_set<std::string>::iterator it = nfa.getFinalStates().begin(); 
+            it != nfa.getFinalStates().end(); it++) {
+
+        nfa.addFinalState(*it);
+    }
+
+    return nfa;
+}
 
 DFA& NFA::determinize() {
-
 
 }

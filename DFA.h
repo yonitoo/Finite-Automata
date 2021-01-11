@@ -10,7 +10,6 @@
 #include "PDFA.h"
 
 //Автоматът е наредена петорка (Σ, Q, 𝛿, qstart, F)
-//template <typename T>
 class DFA {
 
     private: 
@@ -27,8 +26,8 @@ class DFA {
 
 
         void copy(const DFA&);
-        DFA& renameStates(DFA&);
-        PDFA& dfs(PDFA&, const DFA&, const DFA&);
+        void renameStates(DFA&);
+        void dfs(PDFA&, const DFA&, const std::pair<std::string, std::string>&);
 
     public:
         //Default constructor
@@ -106,6 +105,8 @@ class DFA {
         void print() const;
         //Transform the DFA into RegEx string  
         std::string transform();
+        //transform the DFA into NFA
+        NFA& toNFA();
 };
 
 #endif

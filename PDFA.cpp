@@ -227,3 +227,40 @@ PDFA& PDFA::addition()  {
 void PDFA::print() const {
 
 }
+
+DFA& PDFA::toDFA() {
+
+    DFA dfa;
+    dfa.setAlphabet(this->alphabet);
+    std::map<std::pair<std::string, std::string>, std::string> mapStates;
+    int i = 0;
+    for(std::unordered_set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
+        it != this->states.end(); it++) {
+        
+        std::string state = "q" + i;
+        mapStates[*it] = state;
+        i++;
+    }
+    for(std::unordered_set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
+        it != this->states.end(); it++) {
+        
+        if(*it == this->qs) {
+
+            dfa.setQs(mapStates[*it]);
+        }
+        if(this->finalStates.find(*it) != this->finalStates.end()) {
+
+            dfa.addFinalState(mapStates[*it]);
+        }
+        dfa.addState(mapStates[*it]);
+    }
+
+    for(std::map<std::pair<std::pair<std::string, std::string>, char>, 
+                std::pair<std::string, std::string>>::iterator it = 
+                this->delta.begin(); it != this->delta.end(); it++) {
+                
+        dfa.addTransition(std::make_pair(mapStates[it->first.first], it->first.second), mapStates[it->second]);
+    }
+
+    return dfa;
+}

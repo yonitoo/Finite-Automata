@@ -2,7 +2,8 @@
 #define REGEX_H
 
 #include <string>
-#include "DFA.h"
+#include <unordered_map>
+#include "NFA.h"
 
 //Клас за азбуката на автомат
 class RegEx {
@@ -11,6 +12,7 @@ class RegEx {
         std::string expression;
 
         void copy(const RegEx&);
+        NFA transformHelper(std::unordered_map<int, int>&, int start, int end);
 
     public:
         //Default constructor
@@ -43,7 +45,7 @@ class RegEx {
         std::string& regExKleeneStar();
 
         //Transform the RegEx into DFA
-        DFA transform();
+        NFA transform();
 };
 
 #endif
