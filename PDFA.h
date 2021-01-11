@@ -1,7 +1,7 @@
 #ifndef PDFA_H
 #define PDFA_H
 
-#include <unordered_set>
+#include <set>
 #include <map>
 #include <utility>
 #include <string>
@@ -15,13 +15,13 @@ class PDFA {
         //Σ
         Alphabet alphabet;
         //Q 
-        std::unordered_set<std::pair<std::string, std::string>> states; 
+        std::set<std::pair<std::string, std::string>> states; 
         //𝛿
         std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>> delta;
         //Initial state
         std::pair<std::string, std::string> qs;
         //F
-        std::unordered_set<std::pair<std::string, std::string>> finalStates;
+        std::set<std::pair<std::string, std::string>> finalStates;
 
         void copy(const PDFA&);
         void erase();
@@ -30,10 +30,10 @@ class PDFA {
         //Default constructor
         PDFA();
         //Constructor with arguments
-        PDFA(const Alphabet&, const std::unordered_set<std::pair<std::string, std::string>>&, 
+        PDFA(const Alphabet&, const std::set<std::pair<std::string, std::string>>&, 
             const std::map<std::pair<std::pair<std::string, std::string>, char>, 
             std::pair<std::string, std::string>>&, const std::pair<std::string, std::string>&, 
-            const std::unordered_set<std::pair<std::string, std::string>>&);
+            const std::set<std::pair<std::string, std::string>>&);
         //Copy constructor
         PDFA(const PDFA&);
         //Operator=
@@ -67,26 +67,26 @@ class PDFA {
         //Set the letters of the alphabet
         void setAlphabet(const Alphabet&);
         //Set the set of states
-        void setStates(const std::unordered_set<std::pair<std::string, std::string>>&); 
+        void setStates(const std::set<std::pair<std::string, std::string>>&); 
         //Set the delta function
         void setDelta(const std::map<std::pair<std::pair<std::string, std::string>, char>, 
                             std::pair<std::string, std::string>>&);
         //Set the initial state
         void setQs(const std::pair<std::string, std::string>&);
         //Set the set of final states
-        void setFinalStates(const std::unordered_set<std::pair<std::string, std::string>>&);
+        void setFinalStates(const std::set<std::pair<std::string, std::string>>&);
 
         //Getters
         //Get the letters of the alphabet
         Alphabet getAlphabet() const;
         //Get the set of states
-        std::unordered_set<std::pair<std::string, std::string>> getStates() const; 
+        std::set<std::pair<std::string, std::string>> getStates() const; 
         //Get the delta function
         std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>> getDelta() const;
         //Get the initial state
         std::pair<std::string, std::string> getInitialState() const;
         //Get the set of final states
-        std::unordered_set<std::pair<std::string, std::string>> getFinalStates() const;
+        std::set<std::pair<std::string, std::string>> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the PDFA
         bool canBeRecognized(const std::string&);

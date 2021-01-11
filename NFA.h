@@ -1,7 +1,12 @@
 #ifndef NFA_H
 #define NFA_H
 
+#include "Alphabet.h"
 #include "DFA.h"
+#include <map>
+#include <utility>
+#include <set>
+#include <string>
 
 //Автоматът е наредена петорка (Σ, Q, 𝛿, qstart, F)
 //template <typename T>
@@ -11,13 +16,13 @@ class NFA {
         //Σ
         Alphabet alphabet;
         //Q 
-        std::unordered_set<std::string> states; 
+        std::set<std::string> states; 
         //𝛿
-        std::map<std::pair<std::string, char>, std::unordered_set<std::string>> delta;
+        std::map<std::pair<std::string, char>, std::set<std::string>> delta;
         //Initial state
-        std::unordered_set<std::string> qs;
+        std::set<std::string> qs;
         //F
-        std::unordered_set<std::string> finalStates;
+        std::set<std::string> finalStates;
 
         void copy(const NFA&);
         void erase();
@@ -26,9 +31,9 @@ class NFA {
         //Default constructor
         NFA();
         //Constructor with arguments
-        NFA(const Alphabet&, const std::unordered_set<std::string>&, 
-            const std::map<std::pair<std::string, char>, std::unordered_set<std::string>>&, 
-            const std::unordered_set<std::string>&, const std::unordered_set<std::string>&);
+        NFA(const Alphabet&, const std::set<std::string>&, 
+            const std::map<std::pair<std::string, char>, std::set<std::string>>&, 
+            const std::set<std::string>&, const std::set<std::string>&);
         //Copy constructor
         NFA(const NFA&);
         //Operator=
@@ -64,35 +69,43 @@ class NFA {
         //Set the letters of the alphabet
         void setAlphabet(const Alphabet&);
         //Set the set of states
-        void setStates(const std::unordered_set<std::string>&); 
+        void setStates(const std::set<std::string>&); 
         //Set the delta function
-        void setDelta(const std::map<std::pair<std::string, char>, std::unordered_set<std::string>>&);
+        void setDelta(const std::map<std::pair<std::string, char>, std::set<std::string>>&);
         //Set the set of initial states
-        void setInitialStates(const std::unordered_set<std::string>&);
+        void setInitialStates(const std::set<std::string>&);
         //Set the set of final states
-        void setFinalStates(const std::unordered_set<std::string>&);
+        void setFinalStates(const std::set<std::string>&);
 
         //Getters
         //Get the letters of the alphabet
         Alphabet getAlphabet() const;
         //Get the set of states
-        std::unordered_set<std::string> getStates() const; 
+        std::set<std::string> getStates() const; 
         //Get the delta function
-        std::map<std::pair<std::string, char>, std::unordered_set<std::string>> getDelta() const;
+        std::map<std::pair<std::string, char>, std::set<std::string>> getDelta() const;
         //Get the initial state
-        std::unordered_set<std::string> getInitialStates() const;
+        std::set<std::string> getInitialStates() const;
         //Get the set of final states
-        std::unordered_set<std::string> getFinalStates() const;
+        std::set<std::string> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the NFA
         bool canBeRecognized(const std::string&);
+        bool canBeRecognizedHelper(const std::string&, const std::string&); 
         //Union of the languages of 2 NFAs
-        NFA& uni(NFA&);       
+        NFA& uni(NFA&);  
+        //Intersection of the languages of 2 NFAs 
+        PDFA& intersection(const DFA&);
+        //Concatenation of the languages of 2 NFAs
+        NFA& concatenation(DFA&);
+        //Iteration of the language of NFA       
+        NFA& iteration();    
         //Print the NFA
         void print() const;
         //Transform the NFA into DFA  
         DFA& determinize();
-
+        //Read words from file and print the result
+        void NFA::processInput(const std::string& input);
 };
 
 #endif

@@ -1,13 +1,13 @@
 #ifndef ALPHABET_H
 #define ALPHABET_H
 
-#include <unordered_set>
+#include <set>
 
 //Aзбуката на автомат
 class Alphabet {
 
     private:
-        std::unordered_set<char> letters;
+        std::set<char> letters;
 
         void copy(const Alphabet&);
 
@@ -15,7 +15,7 @@ class Alphabet {
         //Default constructor
         Alphabet();
         //Constructor with argument
-        Alphabet(const std::unordered_set<char>&);
+        Alphabet(const std::set<char>&);
         //Copy constructor
         Alphabet(const Alphabet&);
         //Operator=
@@ -24,9 +24,9 @@ class Alphabet {
         ~Alphabet();
 
         //Setter
-        void setLetters(const std::unordered_set<char>&);
+        void setLetters(const std::set<char>&);
         //Getter
-        std::unordered_set<char> getLetters() const;
+        std::set<char> getLetters() const;
 
         //Add letter to the alphabet
         Alphabet& addLetter(const char&);

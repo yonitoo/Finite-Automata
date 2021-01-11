@@ -11,17 +11,17 @@ void PDFA::copy(const PDFA& other) {
 }
 
 //template <typename T>
-PDFA::PDFA() : alphabet (Alphabet()), states (std::unordered_set<std::pair<std::string, std::string>>()), 
+PDFA::PDFA() : alphabet (Alphabet()), states (std::set<std::pair<std::string, std::string>>()), 
             delta (std::map<std::pair<std::pair<std::string, std::string>, char>, 
             std::pair<std::string, std::string>>()), qs(std::make_pair("", "")), 
-            finalStates(std::unordered_set<std::pair<std::string, std::string>>()) {
+            finalStates(std::set<std::pair<std::string, std::string>>()) {
 
 }
 
 //template <typename T>
-PDFA::PDFA(const Alphabet& alphabet, const std::unordered_set<std::pair<std::string, std::string>>& states, 
+PDFA::PDFA(const Alphabet& alphabet, const std::set<std::pair<std::string, std::string>>& states, 
         const std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>>& delta, const std::pair<std::string, std::string>& qs, 
-        const std::unordered_set<std::pair<std::string, std::string>>& finalStates) {
+        const std::set<std::pair<std::string, std::string>>& finalStates) {
     
     this->alphabet = alphabet;
     this->states = states;
@@ -131,7 +131,7 @@ void PDFA::setAlphabet(const Alphabet& alphabet) {
 }
 
 //template <typename T>
-void PDFA::setStates(const std::unordered_set<std::pair<std::string, std::string>>& states) {
+void PDFA::setStates(const std::set<std::pair<std::string, std::string>>& states) {
 
     this->states = states;
 }
@@ -149,7 +149,7 @@ void PDFA::setQs(const std::pair<std::string, std::string>& qs) {
 }
 
 //template <typename T>
-void PDFA::setFinalStates(const std::unordered_set<std::pair<std::string, std::string>>& finalStates) {
+void PDFA::setFinalStates(const std::set<std::pair<std::string, std::string>>& finalStates) {
 
     this->finalStates = finalStates;
 }
@@ -161,7 +161,7 @@ Alphabet PDFA::getAlphabet() const {
 }
 
 //template <typename T>
-std::unordered_set<std::pair<std::string, std::string>> PDFA::getStates() const {
+std::set<std::pair<std::string, std::string>> PDFA::getStates() const {
 
     return this->states;
 }
@@ -179,7 +179,7 @@ std::pair<std::string, std::string> PDFA::getInitialState() const {
 }
 
 //template <typename T>
-std::unordered_set<std::pair<std::string, std::string>> PDFA::getFinalStates() const {
+std::set<std::pair<std::string, std::string>> PDFA::getFinalStates() const {
 
     return this->finalStates;
 }
@@ -205,11 +205,11 @@ bool PDFA::canBeRecognized(const std::string& word) {
 PDFA& PDFA::addition()  {
 
     bool found = false;
-    std::unordered_set<std::pair<std::string, std::string>> newFinals;
-    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = this->states.begin(); 
+    std::set<std::pair<std::string, std::string>> newFinals;
+    for (std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
         found = false;
-        for(std::unordered_set<std::pair<std::string, std::string>>::iterator itFinal = this->finalStates.begin(); 
+        for(std::set<std::pair<std::string, std::string>>::iterator itFinal = this->finalStates.begin(); 
             itFinal != this->finalStates.end(); itFinal++) {
             if(this->states.find(*itFinal) != this->states.end()) {
 
@@ -234,14 +234,14 @@ DFA& PDFA::toDFA() {
     dfa.setAlphabet(this->alphabet);
     std::map<std::pair<std::string, std::string>, std::string> mapStates;
     int i = 0;
-    for(std::unordered_set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
+    for(std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
         it != this->states.end(); it++) {
         
         std::string state = "q" + i;
         mapStates[*it] = state;
         i++;
     }
-    for(std::unordered_set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
+    for(std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
         it != this->states.end(); it++) {
         
         if(*it == this->qs) {

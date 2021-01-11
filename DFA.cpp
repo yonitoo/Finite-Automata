@@ -1,4 +1,7 @@
 #include "DFA.h"
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 void DFA::copy(const DFA& other) {
 
@@ -15,7 +18,7 @@ void DFA::renameStates(DFA& dfa) {
 
 void DFA::dfs(PDFA& pdfa, const DFA& dfa, const std::pair<std::string, std::string>& currentState) {
 
-    for(std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+    for(std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
         pdfa.addTransition(std::make_pair(currentState, *it), 
@@ -25,15 +28,15 @@ void DFA::dfs(PDFA& pdfa, const DFA& dfa, const std::pair<std::string, std::stri
     }
 }
 
-DFA::DFA() : alphabet (Alphabet()), states (std::unordered_set<std::string>()), 
+DFA::DFA() : alphabet (Alphabet()), states (std::set<std::string>()), 
             delta (std::map<std::pair<std::string, char>, std::string>()), qs(""), 
-            finalStates(std::unordered_set<std::string>()) {
+            finalStates(std::set<std::string>()) {
 
 }
 
-DFA::DFA(const Alphabet& alphabet, const std::unordered_set<std::string>& states, 
+DFA::DFA(const Alphabet& alphabet, const std::set<std::string>& states, 
         const std::map<std::pair<std::string, char>, std::string>& delta, const std::string& qs, 
-        const std::unordered_set<std::string>& finalStates) {
+        const std::set<std::string>& finalStates) {
     
     this->alphabet = alphabet;
     this->states = states;
@@ -111,12 +114,20 @@ Alphabet& DFA::removeLetter(const char& letter) {
 void DFA::removeState(const std::string& state) {
 
     this->states.erase(state);
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = this->delta.begin(); 
+            it != this->delta.end(); ) {
+
+        if(it->first.first == state || it->second == state) {
+
+            this->delta.erase(it++);
+        }
+        else ++it;
+    }
 }
 
 void DFA::removeTransition(const std::pair<std::string, char>& sourceLetter, 
                             const std::string& destination) {
 
-    //MAYBE TODO use bool return type
     this->delta.erase(sourceLetter);
 }
 
@@ -130,7 +141,7 @@ void DFA::setAlphabet(const Alphabet& alphabet) {
     this->alphabet = alphabet;
 }
 
-void DFA::setStates(const std::unordered_set<std::string>& states) {
+void DFA::setStates(const std::set<std::string>& states) {
 
     this->states = states;
 }
@@ -145,7 +156,7 @@ void DFA::setQs(const std::string& qs) {
     this->qs = qs;
 }
 
-void DFA::setFinalStates(const std::unordered_set<std::string>& finalStates) {
+void DFA::setFinalStates(const std::set<std::string>& finalStates) {
 
     this->finalStates = finalStates;
 }
@@ -155,7 +166,7 @@ Alphabet DFA::getAlphabet() const {
     return this->alphabet;
 }
 
-std::unordered_set<std::string> DFA::getStates() const {
+std::set<std::string> DFA::getStates() const {
 
     return this->states;
 }
@@ -170,7 +181,7 @@ std::string DFA::getQs() const {
     return this->qs;
 }
 
-std::unordered_set<std::string> DFA::getFinalStates() const {
+std::set<std::string> DFA::getFinalStates() const {
 
     return this->finalStates;
 }
@@ -196,13 +207,13 @@ PDFA& DFA::uni(const DFA& dfa) {
 
     PDFA pdfa;
     pdfa.setQs(std::make_pair(this->getQs(), dfa.getQs()));
-    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+    for (std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
         pdfa.addLetter(*it);
     }
 
-    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+    for (std::set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
             it != dfa.getAlphabet().getLetters().end(); it++) {
 
         pdfa.addLetter(*it);
@@ -211,7 +222,7 @@ PDFA& DFA::uni(const DFA& dfa) {
     std::pair<std::string, std::string> initialState = pdfa.getInitialState();
     this->dfs(pdfa, dfa, initialState);
 
-    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
+    for (std::set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
             it != pdfa.getStates().end(); it++) {
 
         if((this->finalStates.find(it->first) != this->finalStates.end()) &&
@@ -226,27 +237,25 @@ PDFA& DFA::uni(const DFA& dfa) {
 NFA& DFA::uni_2(DFA& dfa) {
 
     NFA nfa;
-    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+    for (std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
         nfa.addLetter(*it);
     }
 
-    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+    for (std::set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
             it != dfa.getAlphabet().getLetters().end(); it++) {
 
         nfa.addLetter(*it);
     }
 
-    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+    for (std::set<std::string>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
 
         nfa.addState(*it);
     }
-    //TODO renameStates function
-    this->renameStates(dfa);
 
-    for (std::unordered_set<std::string>::iterator it = dfa.getStates().begin(); 
+    for (std::set<std::string>::iterator it = dfa.getStates().begin(); 
             it != dfa.getStates().end(); it++) {
 
         nfa.addState(*it);
@@ -267,13 +276,13 @@ NFA& DFA::uni_2(DFA& dfa) {
         nfa.addTransition(it->first, it->second);
     }
 
-    for (std::unordered_set<std::string>::iterator it = this->finalStates.begin(); 
+    for (std::set<std::string>::iterator it = this->finalStates.begin(); 
             it != this->finalStates.end(); it++) {
 
         nfa.addFinalState(*it);
     }
 
-    for (std::unordered_set<std::string>::iterator it = dfa.getFinalStates().begin(); 
+    for (std::set<std::string>::iterator it = dfa.getFinalStates().begin(); 
             it != dfa.getFinalStates().end(); it++) {
 
         nfa.addFinalState(*it);
@@ -286,13 +295,13 @@ PDFA& DFA::intersection(const DFA& dfa) {
 
     PDFA pdfa;
     pdfa.setQs(std::make_pair(this->getQs(), dfa.getQs()));
-    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+    for (std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
         pdfa.addLetter(*it);
     }
 
-    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+    for (std::set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
             it != dfa.getAlphabet().getLetters().end(); it++) {
 
         pdfa.addLetter(*it);
@@ -301,7 +310,7 @@ PDFA& DFA::intersection(const DFA& dfa) {
     std::pair<std::string, std::string> initialState = pdfa.getInitialState();
     this->dfs(pdfa, dfa, initialState);
 
-    for (std::unordered_set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
+    for (std::set<std::pair<std::string, std::string>>::iterator it = pdfa.getStates().begin(); 
             it != pdfa.getStates().end(); it++) {
 
         if((this->finalStates.find(it->first) != this->finalStates.end()) &&
@@ -313,30 +322,74 @@ PDFA& DFA::intersection(const DFA& dfa) {
     return pdfa;
 }        
 
-NFA& DFA::concatenation(DFA& dfa) {
+DFA& DFA::concatenation(const DFA& dfa) {
+
+    for (std::set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+            it != dfa.getAlphabet().getLetters().end(); it++) {
+
+        this->addLetter(*it);
+    }
+
+    for (std::set<std::string>::iterator it = dfa.getStates().begin(); 
+            it != dfa.getStates().end(); it++) {
+
+        this->addState(*it);
+    }
+
+    for (std::map<std::pair<std::string, char>, std::string>::iterator it = dfa.getDelta().begin(); 
+            it != dfa.getDelta().end(); ) {
+
+        this->addTransition(it->first, it->second);
+    }
+    std::set<std::string> temp = this->finalStates;
+    this->finalStates.clear();
+
+    for (std::set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+        
+        this->addTransition(std::make_pair(*it, '@'), dfa.getQs());
+    }
+
+    if(dfa.getFinalStates().find(dfa.getQs()) != dfa.getFinalStates().end()) {
+        
+        for (std::set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+        
+            this->setFinalStates(temp);
+        }
+    }
+
+    for (std::set<std::string>::iterator it = dfa.getFinalStates().begin(); 
+            it != dfa.getFinalStates().end(); it++) {
+
+        this->addFinalState(*it);
+    }
+
+    return *this;
+}
+
+/*NFA& DFA::concatenation(const DFA& dfa) {
 
     NFA nfa;
-    for (std::unordered_set<char>::iterator it = this->alphabet.getLetters().begin(); 
+    for (std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
             it != this->alphabet.getLetters().end(); it++) {
 
         nfa.addLetter(*it);
     }
 
-    for (std::unordered_set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
+    for (std::set<char>::iterator it = dfa.getAlphabet().getLetters().begin(); 
             it != dfa.getAlphabet().getLetters().end(); it++) {
 
         nfa.addLetter(*it);
     }
 
-    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+    for (std::set<std::string>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
 
         nfa.addState(*it);
     }
-    //TODO renameStates function
-    this->renameStates(dfa);
 
-    for (std::unordered_set<std::string>::iterator it = dfa.getStates().begin(); 
+    for (std::set<std::string>::iterator it = dfa.getStates().begin(); 
             it != dfa.getStates().end(); it++) {
 
         nfa.addState(*it);
@@ -362,28 +415,28 @@ NFA& DFA::concatenation(DFA& dfa) {
 
     if(dfa.getFinalStates().find(dfa.getQs()) != dfa.getFinalStates().end()) {
         
-        for (std::unordered_set<std::string>::iterator it = this->finalStates.begin(); 
+        for (std::set<std::string>::iterator it = this->finalStates.begin(); 
             it != this->finalStates.end(); it++) {
         
             nfa.addFinalState(*it);
         }
     }
 
-    for (std::unordered_set<std::string>::iterator it = dfa.getFinalStates().begin(); 
+    for (std::set<std::string>::iterator it = dfa.getFinalStates().begin(); 
             it != dfa.getFinalStates().end(); it++) {
 
         nfa.addFinalState(*it);
     }
 
     return nfa;
-}   
+}*/
 
-NFA& DFA::iteration() {
+/*NFA& DFA::iteration() {
 
     NFA nfa;
     nfa.setAlphabet(this->alphabet);
     nfa.addInitialState(this->qs);
-    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+    for (std::set<std::string>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
         
         nfa.addState(*it);
@@ -397,16 +450,30 @@ NFA& DFA::iteration() {
     nfa.addInitialState(this->qs + "_2");
     nfa.addFinalState(this->qs + "_2");
     return nfa;
+}*/
+
+DFA& DFA::iteration() {
+
+    this->addState("newQs");
+    this->addTransition(std::make_pair("newQs", '@'), this->qs);
+    this->setQs("newQs");
+    this->addFinalState("newQs");
+    for (std::set<std::string>::iterator it = this->finalStates.begin(); 
+            it != this->finalStates.end(); it++) {
+        //epsilon transition to the old initial state
+        this->addTransition(std::make_pair(*it, '@'), this->qs);
+    }
+    return *this;
 }
 
 DFA& DFA::addition()  {
 
     bool found = false;
-    std::unordered_set<std::string> newFinals;
-    for (std::unordered_set<std::string>::iterator it = this->states.begin(); 
+    std::set<std::string> newFinals;
+    for (std::set<std::string>::iterator it = this->states.begin(); 
             it != this->states.end(); it++) {
         found = false;
-        for(std::unordered_set<std::string>::iterator itFinal = this->finalStates.begin(); 
+        for(std::set<std::string>::iterator itFinal = this->finalStates.begin(); 
             itFinal != this->finalStates.end(); itFinal++) {
             if(this->states.find(*itFinal) != this->states.end()) {
 
@@ -434,7 +501,7 @@ NFA& DFA::toNFA() {
 
     NFA nfa;
     nfa.setAlphabet(this->alphabet);
-    for(std::unordered_set<std::string>::iterator it = this->states.begin();
+    for(std::set<std::string>::iterator it = this->states.begin();
         it != this->states.end(); it++) {
         
         if(*it == this->qs) {
@@ -455,4 +522,33 @@ NFA& DFA::toNFA() {
     }
 
     return nfa;
+}
+
+void DFA::processInput(const std::string& input) {
+     
+    std::ifstream file;
+    file.open(input, std::ios::in);
+    if (!file.is_open())
+    {
+        std::cout << "Couldn't open the file or not a valid path!" << std::endl;
+        return;
+    }
+    std::cout << "File opened successfully" << std::endl;
+    std::multiset<std::string> words;
+    std::string line;
+    while(std::getline(file, line)) {
+
+        words.insert(line);
+    }
+    
+    file.close();
+    int i = 1;
+    for(std::multiset<std::string>::iterator it = words.begin() ; it != words.end() ; it++) {
+
+        if(this->canBeRecognized(*it)) {
+
+            std::cout << "The word " << *it << " on line " << i << " can be recognized!" << std::endl; 
+        }
+        i++;
+    }
 }

@@ -5,11 +5,11 @@ void Alphabet::copy(const Alphabet& other) {
     this->letters = other.letters;
 }
 
-Alphabet::Alphabet() : letters(std::unordered_set<char>( {'@'})) {
+Alphabet::Alphabet() : letters(std::set<char>( {'@'})) {
 
 }
 
-Alphabet::Alphabet(const std::unordered_set<char>& letters) {
+Alphabet::Alphabet(const std::set<char>& letters) {
 
     this->letters = letters;
 }
@@ -32,12 +32,12 @@ Alphabet::~Alphabet() {
 
 }
 
-void Alphabet::setLetters(const std::unordered_set<char>& letters) {
+void Alphabet::setLetters(const std::set<char>& letters) {
 
     this->letters = letters;
 }
 
-std::unordered_set<char> Alphabet::getLetters() const {
+std::set<char> Alphabet::getLetters() const {
 
     return this->letters;
 }

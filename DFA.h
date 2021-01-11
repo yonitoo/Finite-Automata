@@ -1,7 +1,7 @@
 #ifndef DFA_H
 #define DFA_H
 
-#include <unordered_set>
+#include <set>
 #include <map>
 #include <utility>
 #include <string>
@@ -16,13 +16,13 @@ class DFA {
         //Σ
         Alphabet alphabet;
         //Q 
-        std::unordered_set<std::string> states; 
+        std::set<std::string> states; 
         //𝛿
         std::map<std::pair<std::string, char>, std::string> delta;
         //Initial state
         std::string qs;
         //F
-        std::unordered_set<std::string> finalStates;
+        std::set<std::string> finalStates;
 
 
         void copy(const DFA&);
@@ -33,9 +33,9 @@ class DFA {
         //Default constructor
         DFA();
         //Constructor with arguments
-        DFA(const Alphabet&, const std::unordered_set<std::string>&, 
+        DFA(const Alphabet&, const std::set<std::string>&, 
             const std::map<std::pair<std::string, char>, std::string>&, const std::string&, 
-            const std::unordered_set<std::string>&);
+            const std::set<std::string>&);
         //Copy constructor
         DFA(const DFA&);
         //Operator=
@@ -67,25 +67,25 @@ class DFA {
         //Set the letters of the alphabet
         void setAlphabet(const Alphabet&);
         //Set the set of states
-        void setStates(const std::unordered_set<std::string>&); 
+        void setStates(const std::set<std::string>&); 
         //Set the delta function
         void setDelta(const std::map<std::pair<std::string, char>, std::string>&);
         //Set the initial state
         void setQs(const std::string&);
         //Set the set of final states
-        void setFinalStates(const std::unordered_set<std::string>&);
+        void setFinalStates(const std::set<std::string>&);
 
         //Getters
         //Get the letters of the alphabet
         Alphabet getAlphabet() const;
         //Get the set of states
-        std::unordered_set<std::string> getStates() const; 
+        std::set<std::string> getStates() const; 
         //Get the delta function
         std::map<std::pair<std::string, char>, std::string> getDelta() const;
         //Get the initial state
         std::string getQs() const;
         //Get the set of final states
-        std::unordered_set<std::string> getFinalStates() const;
+        std::set<std::string> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the DFA
         bool canBeRecognized(const std::string&);
@@ -96,17 +96,19 @@ class DFA {
         //Intersection of the languages of 2 DFAs
         PDFA& intersection(const DFA&);
         //Concatenation of the languages of 2 DFAs
-        NFA& concatenation(DFA&);
+        DFA& concatenation(const DFA&);
         //Iteration of the language of DFA       
-        NFA& iteration();
+        DFA& iteration();
         //Addition of the language of DFA       
         DFA& addition();
         //Print the DFA
         void print() const;
         //Transform the DFA into RegEx string  
         std::string transform();
-        //transform the DFA into NFA
+        //Transform the DFA into NFA
         NFA& toNFA();
+        //Read the input from file and print the result
+        void processInput(const std::string&);
 };
 
 #endif

@@ -45,24 +45,20 @@ std::string RegEx::getRegEx() const {
     return this->expression;
 }
 
-bool RegEx::isValid() {
+/*bool RegEx::isValid() {
 
 }
       
 std::string& RegEx::regExPrioritization() {
 
-    if(this->isValid()) {
-
-        return '(' + this->expression + ')';
-    }
-    //TODO decide what to return in the other scenario
+    return ('(' + this->expression + ')');
 }
    
 std::string& RegEx::regExConcatenation(const std::string& expression) {
     
     if(this->isValid()) {
 
-        return this->expression + '.' + expression;
+        return this->expression + std::to_string('.') + expression;
     }
 }
          
@@ -70,7 +66,7 @@ std::string& RegEx::regExUnion(const std::string& expression) {
     //TODO да видя какво става, ако имат общи части
     if(this->isValid()) {
 
-        return this->expression + '+' + expression;
+        return this->expression + std::to_string('+') + expression;
     }
 }
                
@@ -85,19 +81,21 @@ std::string& RegEx::regExKleeneStar() {
         
         if(this->expression[this->expression.length() - 1] == '*') {
 
-            return this->regExPrioritization() + '*';
+            return (this->regExPrioritization() + '*');
         }
         else {
 
-            return this->expression + '*';
+            return (this->expression + '*');
         }
     }
-}
+}*/
 
-NFA RegEx::transformHelper(std::unordered_map<int, int>& match, int start, int end) {
+DFA RegEx::transformHelper(std::map<int, int>& match, int start, int end, int i) {
 
     int balance = 0;
-    std::priority_queue<std::pair<char, std::pair<int, int>>> operations;
+    int bestPosition = -1;
+    int bestPriority = -1;
+    char bestOperator;
     for(int i = start ; i <= end ; i++) {
 
         if(this->expression[i] == '(') {
@@ -110,68 +108,82 @@ NFA RegEx::transformHelper(std::unordered_map<int, int>& match, int start, int e
         }
         else if(balance == 0) {
 
-            if(this->expression[i] == '*') {
+            if(this->expression[i] == '*' && bestPriority < 2) {
 
-                operations.push(std::make_pair('*', std::make_pair(i, 2)));
+                bestPriority = 2;
+                bestOperator = '*';
+                bestPosition = i;
             }
-            else if(this->expression[i] == '.') {
+            else if(this->expression[i] == '.' && bestPriority < 1) {
 
-                operations.push(std::make_pair('.', std::make_pair(i, 1)));
+                bestPriority = 1;
+                bestOperator = '.';
+                bestPosition = i;
             }
-            else if(this->expression[i] == '+' || this->expression[i] == '&') {
+            else if(this->expression[i] == '+' && bestPriority < 0) {
+               
+                bestPriority = 0;
+                bestOperator = '+';
+                bestPosition = i;
+            }
+            else if(this->expression[i] == '&' && bestPriority < 0) {
 
-                operations.push(std::make_pair(this->expression[i], std::make_pair(i, 0)));
+                bestPriority = 0;
+                bestOperator = '&';
+                bestPosition = i;
             }
         }
     }
-    NFA left, right, current;
-    while(!operations.empty()) {
 
-        if(operations.top().first == '*') {
+    if(bestPosition == -1) {
 
+        if(this->expression[start] == '(') {
+
+            return transformHelper(match, start + 1, end - 1, i + 10);
         }
         else {
 
-            if(this->expression[operations.top().second.first - 1] == ')') {
+            DFA current;
+            current.addState("q" + std::to_string(i));
+            current.addState("q1" + std::to_string(i + 1));
+            current.addTransition(std::make_pair("q" + std::to_string(i), 
+                                    this->expression[start]), "q" + std::to_string(i + 1));
+            current.addLetter(this->expression[start]);
+            current.setQs("q" + std::to_string(i));
+            current.addFinalState("q" + std::to_string(i + 1));
+            return current;
+        }
+    }
+    else if(bestOperator == '*'){
 
-                left = this->transformHelper(match, match[operations.top().second.first - 1] + 1, 
-                                        operations.top().second.first - 2);
-            }
-            else {
+        DFA current = transformHelper(match, start, bestPosition - 1, i + 10);
+        return current.iteration();
+    }
+    else {
 
-                left = this->transformHelper(match, operations.top().second.first - 1, 
-                                        operations.top().second.first - 1);
-            }
+        DFA left = transformHelper(match, start, bestPosition - 1, i + 10);
+        DFA right = transformHelper(match, bestPosition + 1, end, i + 10);
+        if(bestOperator == '.') {
 
-            if(this->expression[operations.top().second.first + 1] == '(') {
+            return left.concatenation(right);
+        }
+        else if(bestOperator == '&') {
 
-                right = this->transformHelper(match, operations.top().second.first + 2, 
-                                               match[operations.top().second.first + 1] - 1);
-            }
-            else {
+            return left.intersection(right).toDFA(); 
+        }
+        else {
 
-                right = this->transformHelper(match, operations.top().second.first + 1, 
-                                        operations.top().second.first + 1);
-            }
-            
-            if(operations.top().first == '+') {
-
-                current = left.uni(right);
-            }
-            else if(operations.top().first == '&') {
-
-                //PDFA current2 =  
-            }
+            return left.uni(right).toDFA();
         }
     }
 }
 
 
-NFA RegEx::transform() {
+DFA RegEx::transform() {
 
     int length = this->expression.size();
     std::stack<int> brackets;
-    std::unordered_map<int, int> match;
+    std::map<int, int> match;
     for(int i = 0 ; i < length ; i++) {
 
         if(this->expression[i] == '(') {
@@ -186,5 +198,5 @@ NFA RegEx::transform() {
         }
     }
 
-    return transformHelper(match, 0, length - 1);
+    return transformHelper(match, 0, length - 1, 0);
 }
