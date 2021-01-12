@@ -27,7 +27,8 @@ class DFA {
 
         void copy(const DFA&);
         void renameStates(DFA&);
-        void dfs(PDFA&, const DFA&, const std::pair<std::string, std::string>&);
+        void dfs(PDFA&, const DFA&, const std::pair<std::string, 
+                 std::string>&, std::map<std::pair<std::string, std::string>, bool>& );
 
     public:
         //Default constructor
@@ -37,9 +38,11 @@ class DFA {
             const std::map<std::pair<std::string, char>, std::string>&, const std::string&, 
             const std::set<std::string>&);
         //Copy constructor
-        DFA(const DFA&);
+        //DFA(const DFA&);
+        //Constructor from PDFA
+        DFA(const PDFA&);
         //Operator=
-        DFA& operator= (const DFA&);
+        //DFA& operator= (const DFA&);
         //Destructor
         ~DFA();
 
@@ -88,7 +91,8 @@ class DFA {
         std::set<std::string> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the DFA
-        bool canBeRecognized(const std::string&);
+        bool isRecognized(const std::string&);
+
         //Union of the languages of 2 DFAs      
         PDFA& uni(const DFA&);
         //Union_2 of the languages of 2 DFAs      

@@ -1,12 +1,13 @@
 #ifndef PDFA_H
 #define PDFA_H
 
+class DFA;
+
 #include <set>
 #include <map>
 #include <utility>
 #include <string>
 #include "Alphabet.h"
-#include "DFA.h"
 
 //Автоматът е наредена петорка (Σ, Q, 𝛿, qstart, F)
 class PDFA {
@@ -89,13 +90,11 @@ class PDFA {
         std::set<std::pair<std::string, std::string>> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the PDFA
-        bool canBeRecognized(const std::string&);
+        bool isRecognized(const std::string&);
         //Addition of the language of PDFA       
         PDFA& addition();
         //Print the PDFA
         void print() const;
-        //Transform the PDFA into DFA
-        DFA& toDFA();
 };
 
 #endif

@@ -1,15 +1,15 @@
 #ifndef NFA_H
 #define NFA_H
 
+class DFA;
+
 #include "Alphabet.h"
-#include "DFA.h"
 #include <map>
 #include <utility>
 #include <set>
 #include <string>
 
-//Автоматът е наредена петорка (Σ, Q, 𝛿, qstart, F)
-//template <typename T>
+//Недетерминираният автомат е наредена петорка (Σ, Q, 𝛿, Qstart, F)
 class NFA {
 
     private: 
@@ -90,22 +90,14 @@ class NFA {
         std::set<std::string> getFinalStates() const;
 
         //Check if a word can be recognized by the language of the NFA
-        bool canBeRecognized(const std::string&);
-        bool canBeRecognizedHelper(const std::string&, const std::string&); 
+        bool isRecognized(const std::string&);
+        bool isRecognizedHelper(const std::string&, const std::string&); 
         //Union of the languages of 2 NFAs
         NFA& uni(NFA&);  
-        //Intersection of the languages of 2 NFAs 
-        PDFA& intersection(const DFA&);
-        //Concatenation of the languages of 2 NFAs
-        NFA& concatenation(DFA&);
-        //Iteration of the language of NFA       
-        NFA& iteration();    
         //Print the NFA
         void print() const;
-        //Transform the NFA into DFA  
-        DFA& determinize();
         //Read words from file and print the result
-        void NFA::processInput(const std::string& input);
+        void processInput(const std::string&);
 };
 
 #endif

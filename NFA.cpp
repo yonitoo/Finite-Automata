@@ -120,15 +120,13 @@ void NFA::removeInitialState(const std::string& initial) {
     }
 
     this->qs.erase(initial);
-    for (std::map<std::pair<std::string, char>, std::set<std::string>>::iterator it = this->delta.begin(); 
-            it != this->delta.end(); ) {
+    for (auto it : this->delta) {
 
-        if(it->first.first == initial) {
+        if(it.first.first == initial) {
 
-            it->second.clear();
-            this->delta.erase(it++);
+            it.second.clear();
+            this->delta.erase(it.first);
         }
-        else ++it;
     }
 }
 
@@ -189,14 +187,14 @@ std::set<std::string> NFA::getFinalStates() const {
     return this->finalStates;
 }
 
-bool NFA::canBeRecognized(const std::string& word) {
+bool NFA::isRecognized(const std::string& word) {
 
     int length = word.size();
     std::string currentStates;
     bool flag = false;
     for(auto it : this->qs) {
 
-        if(canBeRecognizedHelper(word, it)) {
+        if(isRecognizedHelper(word, it)) {
 
             flag = true;
         }
@@ -204,7 +202,7 @@ bool NFA::canBeRecognized(const std::string& word) {
     return flag;
 }  
 
-bool NFA::canBeRecognizedHelper(const std::string& word, const std::string& currentState) {
+bool NFA::isRecognizedHelper(const std::string& word, const std::string& currentState) {
 
     if(word.size() == 0) {
 
@@ -214,91 +212,67 @@ bool NFA::canBeRecognizedHelper(const std::string& word, const std::string& curr
 
         return false;
     }
-    for(std::set<std::string>::iterator it = this->delta[std::make_pair(currentState, word[0])].begin();
-        it != this->delta[std::make_pair(currentState, word[0])].end() ; it++) {
+    for(auto it : this->delta[std::make_pair(currentState, word[0])]) {
 
-        return canBeRecognizedHelper(word.substr(1), *it);
+        return isRecognizedHelper(word.substr(1), it);
     }
+    return false;
 }
 
 NFA& NFA::uni(NFA& nfa) {
 
     NFA result;
-    for (std::set<char>::iterator it = this->alphabet.getLetters().begin(); 
-            it != this->alphabet.getLetters().end(); it++) {
+    for (auto it : this->alphabet.getLetters()) {
 
-        result.addLetter(*it);
+        result.addLetter(it);
     }
 
-    for (std::set<char>::iterator it = nfa.getAlphabet().getLetters().begin(); 
-            it != nfa.getAlphabet().getLetters().end(); it++) {
+    for (auto it : nfa.getAlphabet().getLetters()) {
 
-        result.addLetter(*it);
+        result.addLetter(it);
     }
 
-    for (std::set<std::string>::iterator it = this->states.begin(); 
-            it != this->states.end(); it++) {
+    for (auto it : this->states) {
 
-        result.addState(*it);
+        result.addState(it);
     }
 
-    for (std::set<std::string>::iterator it = nfa.getStates().begin(); 
-            it != nfa.getStates().end(); it++) {
+    for (auto it : nfa.getStates()) {
 
-        result.addState(*it);
+        result.addState(it);
     }
 
     result.setInitialStates(this->qs);
-    for (std::set<std::string>::iterator it = nfa.getInitialStates().begin(); 
-            it != nfa.getInitialStates().end(); it++) {
+    for (auto it : nfa.getInitialStates()) {
 
-        result.addInitialState(*it);
+        result.addInitialState(it);
     }
     
-    for (std::map<std::pair<std::string, char>, std::set<std::string>>::iterator it = this->delta.begin(); 
-            it != this->delta.end(); ) {
-        for (std::set<std::string>::iterator it2 = it->second.begin(); 
-            it2 != it->second.end(); it++) {
+    for (auto it : this->delta) {
+        for (auto it2 : it.second) {
 
-            result.addTransition(it->first, *it2);
+            result.addTransition(it.first, it2);
         }
     }
 
-    for (std::map<std::pair<std::string, char>, std::set<std::string>>::iterator it = nfa.getDelta().begin(); 
-            it != nfa.getDelta().end(); ) {
-        for (std::set<std::string>::iterator it2 = it->second.begin(); 
-            it2 != it->second.end(); it++) {
+    for (auto it : nfa.getDelta()) {
+        for (auto it2 : it.second) {
 
-            result.addTransition(it->first, *it2);
+            result.addTransition(it.first, it2);
         }
     }
 
-    for (std::set<std::string>::iterator it = this->finalStates.begin(); 
-            it != this->finalStates.end(); it++) {
+    for (auto it : this->finalStates) {
 
-        nfa.addFinalState(*it);
+        nfa.addFinalState(it);
     }
 
-    for (std::set<std::string>::iterator it = nfa.getFinalStates().begin(); 
-            it != nfa.getFinalStates().end(); it++) {
+    for (auto it : nfa.getFinalStates()) {
 
-        nfa.addFinalState(*it);
+        nfa.addFinalState(it);
     }
 
     return nfa;
-}
-
-DFA& NFA::determinize() {
-
-    DFA dfa;
-    dfa.setAlphabet(this->alphabet);
-    std::string initialState;
-    for (std::set<std::string>::iterator it = this->states.begin(); 
-            it != this->states.end(); it++) {
-
-        dfa.addState(*it);
-    }
-
 }
 
 void NFA::processInput(const std::string& input) {
@@ -307,10 +281,10 @@ void NFA::processInput(const std::string& input) {
     file.open(input, std::ios::in);
     if (!file.is_open())
     {
-        std::cout << "Couldn't open the file or not a valid path!" << std::endl;
+        std::cout << "Can't open the file or the path is invalid!" << std::endl;
         return;
     }
-    std::cout << "File opened successfully" << std::endl;
+    std::cout << "File opened successfully!" << std::endl;
     std::multiset<std::string> words;
     std::string line;
     while(std::getline(file, line)) {
@@ -320,11 +294,11 @@ void NFA::processInput(const std::string& input) {
     
     file.close();
     int i = 1;
-    for(std::multiset<std::string>::iterator it = words.begin() ; it != words.end() ; it++) {
+    for(auto it : words) {
 
-        if(this->canBeRecognized(*it)) {
+        if(this->isRecognized(it)) {
 
-            std::cout << "The word " << *it << " on line " << i << " can be recognized!" << std::endl; 
+            std::cout << "The word " << it << " on line " << i << " is recognized!" << std::endl; 
         }
         i++;
     }

@@ -1,4 +1,5 @@
 #include "Alphabet.h"
+#include <iostream>
 
 void Alphabet::copy(const Alphabet& other) {
 
@@ -44,14 +45,15 @@ std::set<char> Alphabet::getLetters() const {
 
 Alphabet& Alphabet::addLetter(const char& letter) {
 
-    //TODO add the invalid symbols to a set and check set.find(letter)
     if(letter != '&' && letter != '(' && letter != ')' && letter != '*' &&
-       letter != '+' && letter != '.' && letter != '?' && letter != '@' &&
-       this->letters.find(letter) == this->letters.end()) {
+       letter != '+' && letter != '.' && letter != '?' && letter != '@') {
 
         this->letters.insert(letter);
     }
-    //else {exception CannotAddExistingOrInvalidLetter}
+    else {
+        
+        std::cout << "You can't add reserved characters" << std::endl;
+    }
     return *this;
 }
 
@@ -61,6 +63,9 @@ Alphabet& Alphabet::removeLetter(const char& letter) {
         
         this->letters.erase(letter);
     }
-    //else {exception CannotRemoveNonExistingLetter}
+    else {
+        
+        std::cout << "You can not remove a non-existing letter!" << std::endl;
+    }
     return *this;
 }

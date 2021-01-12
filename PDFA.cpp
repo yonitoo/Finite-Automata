@@ -1,6 +1,5 @@
 #include "PDFA.h"
 
-//template <typename T>
 void PDFA::copy(const PDFA& other) {
 
     this->alphabet = other.alphabet;
@@ -10,7 +9,6 @@ void PDFA::copy(const PDFA& other) {
     this->finalStates = other.finalStates;
 }
 
-//template <typename T>
 PDFA::PDFA() : alphabet (Alphabet()), states (std::set<std::pair<std::string, std::string>>()), 
             delta (std::map<std::pair<std::pair<std::string, std::string>, char>, 
             std::pair<std::string, std::string>>()), qs(std::make_pair("", "")), 
@@ -18,7 +16,6 @@ PDFA::PDFA() : alphabet (Alphabet()), states (std::set<std::pair<std::string, st
 
 }
 
-//template <typename T>
 PDFA::PDFA(const Alphabet& alphabet, const std::set<std::pair<std::string, std::string>>& states, 
         const std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>>& delta, const std::pair<std::string, std::string>& qs, 
         const std::set<std::pair<std::string, std::string>>& finalStates) {
@@ -31,13 +28,11 @@ PDFA::PDFA(const Alphabet& alphabet, const std::set<std::pair<std::string, std::
 
 }
 
-//template <typename T>
 PDFA::PDFA(const PDFA& other) {
 
     copy(other);
 }
 
-//template <typename T>
 PDFA& PDFA::operator= (const PDFA& other) {
 
     if(this != &other) {
@@ -48,24 +43,20 @@ PDFA& PDFA::operator= (const PDFA& other) {
     return *this;
 }
 
-//template <typename T>
 PDFA::~PDFA() {
 
 }
 
-//template <typename T>
 Alphabet& PDFA::addLetter(const char& letter) {
 
     return this->alphabet.addLetter(letter);
 }
 
-//template <typename T>
 void PDFA::addState(const std::pair<std::string, std::string>& state) {
 
     this->states.insert(state);
 }
 
-//template <typename T>
 void PDFA::addTransition(const std::pair<std::pair<std::string, std::string>, char>& sourceLetter, 
                         const std::pair<std::string, std::string>& destination) {
 
@@ -74,13 +65,11 @@ void PDFA::addTransition(const std::pair<std::pair<std::string, std::string>, ch
     this->delta[sourceLetter] = destination;
 }
 
-//template <typename T>
 void PDFA::addFinalState(const std::pair<std::string, std::string>& final) {
 
     this->finalStates.insert(final);
 }
 
-//template <typename T>
 Alphabet& PDFA::removeLetter(const char& letter) {
 
     int size = this->alphabet.getLetters().size();
@@ -104,13 +93,11 @@ Alphabet& PDFA::removeLetter(const char& letter) {
     return this->alphabet;
 }
 
-//template <typename T>
 void PDFA::removeState(const std::pair<std::string, std::string>& state) {
 
     this->states.erase(state);
 }
 
-//template <typename T>
 void PDFA::removeTransition(const std::pair<std::pair<std::string, std::string>, char>& sourceLetter, 
                             const std::pair<std::string, std::string>& destination) {
 
@@ -118,74 +105,62 @@ void PDFA::removeTransition(const std::pair<std::pair<std::string, std::string>,
     this->delta.erase(sourceLetter);
 }
 
-//template <typename T>
 void PDFA::removeFinalState(const std::pair<std::string, std::string>& final) {
 
     this->finalStates.erase(final);
 }
 
-//template <typename T>
 void PDFA::setAlphabet(const Alphabet& alphabet) {
 
     this->alphabet = alphabet;
 }
 
-//template <typename T>
 void PDFA::setStates(const std::set<std::pair<std::string, std::string>>& states) {
 
     this->states = states;
 }
 
-//template <typename T>
 void PDFA::setDelta(const std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>>& delta) {
 
     this->delta = delta;
 }
 
-//template <typename T>
 void PDFA::setQs(const std::pair<std::string, std::string>& qs) {
 
     this->qs = qs;
 }
 
-//template <typename T>
 void PDFA::setFinalStates(const std::set<std::pair<std::string, std::string>>& finalStates) {
 
     this->finalStates = finalStates;
 }
 
-//template <typename T>
 Alphabet PDFA::getAlphabet() const {
 
     return this->alphabet;
 }
 
-//template <typename T>
 std::set<std::pair<std::string, std::string>> PDFA::getStates() const {
 
     return this->states;
 }
 
-//template <typename T>
 std::map<std::pair<std::pair<std::string, std::string>, char>, std::pair<std::string, std::string>> PDFA::getDelta() const {
 
     return this->delta;
 }
 
-//template <typename T>
 std::pair<std::string, std::string> PDFA::getInitialState() const {
 
     return this->qs;
 }
 
-//template <typename T>
 std::set<std::pair<std::string, std::string>> PDFA::getFinalStates() const {
 
     return this->finalStates;
 }
 
-//template <typename T>
-bool PDFA::canBeRecognized(const std::string& word) {
+bool PDFA::isRecognized(const std::string& word) {
 
     int length = word.size();
     std::pair<std::string, std::string> currentState = this->qs;
@@ -206,12 +181,10 @@ PDFA& PDFA::addition()  {
 
     bool found = false;
     std::set<std::pair<std::string, std::string>> newFinals;
-    for (std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin(); 
-            it != this->states.end(); it++) {
+    for (auto it : this->states) {
         found = false;
-        for(std::set<std::pair<std::string, std::string>>::iterator itFinal = this->finalStates.begin(); 
-            itFinal != this->finalStates.end(); itFinal++) {
-            if(this->states.find(*itFinal) != this->states.end()) {
+        for(auto itFinal : this->finalStates) {
+            if(this->states.find(itFinal) != this->states.end()) {
 
                 found = true;
             }
@@ -219,48 +192,7 @@ PDFA& PDFA::addition()  {
 
         if(!found) {
 
-            newFinals.insert(*it);
+            newFinals.insert(it);
         }
     }
-}   
-
-void PDFA::print() const {
-
-}
-
-DFA& PDFA::toDFA() {
-
-    DFA dfa;
-    dfa.setAlphabet(this->alphabet);
-    std::map<std::pair<std::string, std::string>, std::string> mapStates;
-    int i = 0;
-    for(std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
-        it != this->states.end(); it++) {
-        
-        std::string state = "q" + i;
-        mapStates[*it] = state;
-        i++;
-    }
-    for(std::set<std::pair<std::string, std::string>>::iterator it = this->states.begin();
-        it != this->states.end(); it++) {
-        
-        if(*it == this->qs) {
-
-            dfa.setQs(mapStates[*it]);
-        }
-        if(this->finalStates.find(*it) != this->finalStates.end()) {
-
-            dfa.addFinalState(mapStates[*it]);
-        }
-        dfa.addState(mapStates[*it]);
-    }
-
-    for(std::map<std::pair<std::pair<std::string, std::string>, char>, 
-                std::pair<std::string, std::string>>::iterator it = 
-                this->delta.begin(); it != this->delta.end(); it++) {
-                
-        dfa.addTransition(std::make_pair(mapStates[it->first.first], it->first.second), mapStates[it->second]);
-    }
-
-    return dfa;
 }
